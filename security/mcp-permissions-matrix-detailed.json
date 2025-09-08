@@ -1,0 +1,155 @@
+{
+  "mcp_security_audit": {
+    "version": "1.0.0",
+    "audit_date": "2025-09-08",
+    "auditor": "contains-test-analyzer + bmad-qa",
+    "compliance_level": "enterprise",
+    "security_posture": "zero-trust"
+  },
+  
+  "detailed_permissions_matrix": {
+    "bmad-core-agents": {
+      "bmad-orchestrator": {
+        "github": {
+          "permissions": ["read", "write", "admin"],
+          "risk_level": "HIGH",
+          "justification": "Coordination workflows Git critiques",
+          "audit_requirements": ["all_actions_logged", "admin_approval_required"],
+          "isolation_scope": "/coordination/workflows/*"
+        },
+        "postgres": {
+          "permissions": ["read", "write", "schema_modify"],
+          "risk_level": "HIGH", 
+          "justification": "Gestion état coordination agents",
+          "audit_requirements": ["transaction_logging", "data_encryption"],
+          "isolation_scope": "bmad_coordination.orchestrator_*"
+        },
+        "redis": {
+          "permissions": ["read", "write", "flush", "config"],
+          "risk_level": "MEDIUM",
+          "justification": "Cache coordination temps réel",
+          "audit_requirements": ["key_access_logging"],
+          "isolation_scope": "orchestrator:*"
+        }
+      },
+      "bmad-parallel-orchestrator": {
+        "github": ["read", "write"],
+        "postgres": ["read", "write"],
+        "redis": ["read", "write"],
+        "hooks": {
+          "permissions": ["execute", "monitor"],
+          "risk_level": "HIGH",
+          "justification": "Exécution hooks parallèles sécurisés",
+          "audit_requirements": ["hook_execution_logging", "sandbox_isolation"]
+        }
+      }
+    },
+    
+    "contains-design-agents": {
+      "contains-design-ux-researcher": {
+        "firecrawl": {
+          "permissions": ["read", "scrape"],
+          "risk_level": "MEDIUM",
+          "justification": "Recherche UX données web",
+          "audit_requirements": ["scrape_target_logging", "rate_limit_compliance"],
+          "isolation_scope": "research.ux.*"
+        },
+        "notion": {
+          "permissions": ["read", "write"],
+          "risk_level": "LOW",
+          "justification": "Documentation recherche UX",
+          "audit_requirements": ["page_access_logging"],
+          "isolation_scope": "Design/UX Research/*"
+        }
+      },
+      "contains-design-ui": {
+        "shadcn": {
+          "permissions": ["read", "install"],
+          "risk_level": "LOW",
+          "justification": "Composants UI standardisés",
+          "audit_requirements": ["component_usage_tracking"],
+          "isolation_scope": "/ui/components/*"
+        }
+      }
+    },
+    
+    "contains-engineering-agents": {
+      "contains-eng-devops": {
+        "github": {
+          "permissions": ["read", "write", "deploy"],
+          "risk_level": "CRITICAL",
+          "justification": "Déploiements automatisés",
+          "audit_requirements": ["deployment_approval", "rollback_capability", "security_scanning"],
+          "isolation_scope": "/infrastructure/*"
+        },
+        "filesystem": {
+          "permissions": ["read", "write", "execute"],
+          "risk_level": "CRITICAL",
+          "justification": "Gestion infrastructure",
+          "audit_requirements": ["file_change_logging", "permission_validation"],
+          "isolation_scope": "/workspace/infrastructure,/projects/deploy"
+        }
+      }
+    },
+    
+    "contains-testing-agents": {
+      "contains-test-analyzer": {
+        "postgres": {
+          "permissions": ["read"],
+          "risk_level": "LOW",
+          "justification": "Analyse résultats tests stockés",
+          "audit_requirements": ["query_logging"],
+          "isolation_scope": "bmad_coordination.test_results"
+        },
+        "memory": {
+          "permissions": ["read", "write"],
+          "risk_level": "MEDIUM",
+          "justification": "Historique analyses qualité",
+          "audit_requirements": ["memory_access_logging"],
+          "isolation_scope": "test_analysis.*"
+        }
+      }
+    }
+  },
+  
+  "security_controls": {
+    "authentication": {
+      "method": "mutual_tls_certificates",
+      "certificate_rotation": "30d",
+      "key_strength": "RSA-4096_or_ECDSA-P384",
+      "validation_required": true
+    },
+    "authorization": {
+      "model": "zero_trust_rbac",
+      "principle": "least_privilege",
+      "dynamic_permissions": true,
+      "approval_workflows": ["CRITICAL", "HIGH"]
+    },
+    "encryption": {
+      "in_transit": "TLS_1_3_only",
+      "at_rest": "AES_256_GCM", 
+      "key_management": "enterprise_vault"
+    }
+  },
+  
+  "compliance_requirements": {
+    "audit_trail": {
+      "retention_period": "7_years",
+      "immutable_logging": true,
+      "real_time_monitoring": true,
+      "siem_integration": true
+    },
+    "data_protection": {
+      "pii_detection": true,
+      "data_masking": true,
+      "gdpr_compliance": true,
+      "access_logging": "comprehensive"
+    },
+    "incident_response": {
+      "automated_alerting": true,
+      "escalation_procedures": true,
+      "forensic_capabilities": true,
+      "recovery_procedures": true
+    }
+  }
+}

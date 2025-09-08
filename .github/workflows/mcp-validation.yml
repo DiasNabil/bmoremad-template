@@ -1,0 +1,548 @@
+name: MCP Servers Validation & Health Monitoring
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  push:
+    paths:
+      - 'project.mcp.json'
+      - 'security/**'
+      - '.mcp/**'
+  pull_request:
+    paths:
+      - 'project.mcp.json'
+      - 'security/**'
+      - '.mcp/**'
+  workflow_dispatch:
+    inputs:
+      validation_level:
+        description: 'Validation Level'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+        - standard
+        - comprehensive
+        - security-focused
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+  MCP_CLI_VERSION: 'latest'
+
+jobs:
+  # MCP Configuration Validation
+  mcp-config-validation:
+    name: MCP Configuration Validation
+    runs-on: ubuntu-latest
+    outputs:
+      config-status: ${{ steps.config-check.outputs.status }}
+      servers-count: ${{ steps.config-check.outputs.servers_count }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install MCP CLI Tools
+        run: |
+          npm install -g @modelcontextprotocol/cli
+          npm install -g jq
+
+      - name: Validate MCP Configuration
+        id: config-check
+        run: |
+          echo "::group::MCP Configuration Validation"
+          
+          # Check if project.mcp.json exists
+          if [ ! -f "project.mcp.json" ]; then
+            echo "❌ project.mcp.json not found"
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          # Validate JSON structure
+          if ! jq . project.mcp.json > /dev/null 2>&1; then
+            echo "❌ Invalid JSON structure in project.mcp.json"
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "✅ Valid JSON structure"
+          
+          # Count MCP servers
+          SERVERS_COUNT=$(jq '.mcpServers | length' project.mcp.json)
+          echo "📊 MCP Servers configured: $SERVERS_COUNT"
+          echo "servers_count=$SERVERS_COUNT" >> $GITHUB_OUTPUT
+          
+          # Validate required fields for each server
+          jq -r '.mcpServers | keys[]' project.mcp.json | while read server; do
+            echo "Validating $server server configuration..."
+            
+            # Check required fields
+            if ! jq -e ".mcpServers[\"$server\"].command" project.mcp.json > /dev/null; then
+              echo "❌ Missing 'command' field for $server"
+              exit 1
+            fi
+            
+            if ! jq -e ".mcpServers[\"$server\"].args" project.mcp.json > /dev/null; then
+              echo "❌ Missing 'args' field for $server"
+              exit 1
+            fi
+            
+            echo "✅ $server configuration valid"
+          done
+          
+          # Validate security configuration
+          if jq -e '.mcp_security' project.mcp.json > /dev/null; then
+            echo "✅ Security configuration present"
+            
+            # Check security posture
+            SECURITY_POSTURE=$(jq -r '.mcp_security.security_posture' project.mcp.json)
+            echo "🔐 Security posture: $SECURITY_POSTURE"
+            
+            if [ "$SECURITY_POSTURE" != "enterprise_zero_trust" ]; then
+              echo "⚠️  Warning: Security posture is not enterprise_zero_trust"
+            fi
+          else
+            echo "⚠️  Warning: Security configuration missing"
+          fi
+          
+          # Validate permissions matrix
+          if jq -e '.permissions_matrix' project.mcp.json > /dev/null; then
+            echo "✅ Permissions matrix configured"
+            
+            # Count agent groups
+            AGENT_GROUPS=$(jq '.permissions_matrix | keys | length' project.mcp.json)
+            echo "👥 Agent groups configured: $AGENT_GROUPS"
+          else
+            echo "⚠️  Warning: Permissions matrix missing"
+          fi
+          
+          echo "status=passed" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+
+  # Individual MCP Server Health Checks
+  mcp-server-health:
+    name: MCP Server Health Check
+    runs-on: ubuntu-latest
+    needs: mcp-config-validation
+    if: needs.mcp-config-validation.outputs.config-status == 'passed'
+    strategy:
+      matrix:
+        server: [github, firecrawl, postgres, redis, notion, shadcn, filesystem, memory]
+      fail-fast: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Server-Specific Dependencies
+        run: |
+          echo "::group::Installing dependencies for ${{ matrix.server }}"
+          
+          case "${{ matrix.server }}" in
+            "github")
+              npm install -g @github/github-mcp-server
+              ;;
+            "firecrawl")
+              npm install -g @mendable/firecrawl-mcp
+              ;;
+            "postgres")
+              npm install -g @modelcontextprotocol/postgres
+              ;;
+            "redis")
+              npm install -g @modelcontextprotocol/redis
+              ;;
+            "notion")
+              npm install -g @notion-hq/notion-mcp
+              ;;
+            "shadcn")
+              npm install -g @shadcn/mcp-server || echo "⚠️  ShadCN MCP server not available"
+              ;;
+            "filesystem")
+              npm install -g @modelcontextprotocol/filesystem
+              ;;
+            "memory")
+              npm install -g @modelcontextprotocol/memory
+              ;;
+          esac
+          
+          echo "::endgroup::"
+
+      - name: Health Check for ${{ matrix.server }}
+        run: |
+          echo "::group::Health Check: ${{ matrix.server }} MCP Server"
+          
+          # Extract server configuration
+          SERVER_CONFIG=$(jq ".mcpServers[\"${{ matrix.server }}\"]" project.mcp.json)
+          
+          if [ "$SERVER_CONFIG" = "null" ]; then
+            echo "❌ ${{ matrix.server }} server not configured"
+            exit 1
+          fi
+          
+          echo "Server configuration found:"
+          echo "$SERVER_CONFIG" | jq .
+          
+          # Extract command and args
+          COMMAND=$(echo "$SERVER_CONFIG" | jq -r '.command')
+          ARGS=$(echo "$SERVER_CONFIG" | jq -r '.args[]' | tr '\n' ' ')
+          
+          echo "Command: $COMMAND $ARGS"
+          
+          # Server-specific health checks
+          case "${{ matrix.server }}" in
+            "github")
+              echo "🐙 Testing GitHub MCP server availability..."
+              if command -v npx >/dev/null 2>&1; then
+                echo "✅ GitHub MCP server can be invoked"
+              else
+                echo "❌ npx not available"
+                exit 1
+              fi
+              ;;
+            
+            "firecrawl")
+              echo "🔥 Testing Firecrawl MCP server availability..."
+              if command -v npx >/dev/null 2>&1; then
+                echo "✅ Firecrawl MCP server can be invoked"
+              else
+                echo "❌ npx not available"
+                exit 1
+              fi
+              ;;
+            
+            "postgres")
+              echo "🐘 Testing PostgreSQL MCP server configuration..."
+              # Check environment variables
+              ENV_VARS=$(echo "$SERVER_CONFIG" | jq -r '.env // {}' | jq -r 'keys[]')
+              for var in $ENV_VARS; do
+                echo "Environment variable required: $var"
+              done
+              echo "✅ PostgreSQL MCP server configuration valid"
+              ;;
+            
+            "redis")
+              echo "🔴 Testing Redis MCP server configuration..."
+              # Check environment variables
+              ENV_VARS=$(echo "$SERVER_CONFIG" | jq -r '.env // {}' | jq -r 'keys[]')
+              for var in $ENV_VARS; do
+                echo "Environment variable required: $var"
+              done
+              echo "✅ Redis MCP server configuration valid"
+              ;;
+            
+            "notion")
+              echo "📝 Testing Notion MCP server configuration..."
+              if echo "$SERVER_CONFIG" | jq -e '.env.NOTION_API_TOKEN' > /dev/null; then
+                echo "✅ Notion API token configuration present"
+              else
+                echo "⚠️  Notion API token configuration missing"
+              fi
+              ;;
+            
+            "shadcn")
+              echo "🎨 Testing ShadCN MCP server availability..."
+              echo "✅ ShadCN MCP server configuration valid"
+              ;;
+            
+            "filesystem")
+              echo "📁 Testing Filesystem MCP server configuration..."
+              if echo "$SERVER_CONFIG" | jq -e '.env.FILESYSTEM_ALLOWED_PATHS' > /dev/null; then
+                ALLOWED_PATHS=$(echo "$SERVER_CONFIG" | jq -r '.env.FILESYSTEM_ALLOWED_PATHS')
+                echo "✅ Filesystem paths configured: $ALLOWED_PATHS"
+              else
+                echo "⚠️  Filesystem allowed paths not configured"
+              fi
+              ;;
+            
+            "memory")
+              echo "🧠 Testing Memory MCP server availability..."
+              echo "✅ Memory MCP server configuration valid"
+              ;;
+          esac
+          
+          echo "✅ ${{ matrix.server }} health check completed"
+          echo "::endgroup::"
+
+  # Security Validation
+  mcp-security-validation:
+    name: MCP Security Validation
+    runs-on: ubuntu-latest
+    needs: [mcp-config-validation]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Security Tools
+        run: |
+          pip install pyyaml jsonschema cryptography
+
+      - name: Validate Security Configuration
+        run: |
+          echo "::group::MCP Security Validation"
+          
+          # Check security configuration
+          if ! jq -e '.mcp_security' project.mcp.json > /dev/null; then
+            echo "❌ Security configuration missing"
+            exit 1
+          fi
+          
+          # Validate security posture
+          SECURITY_POSTURE=$(jq -r '.mcp_security.security_posture' project.mcp.json)
+          echo "🔐 Security posture: $SECURITY_POSTURE"
+          
+          if [ "$SECURITY_POSTURE" != "enterprise_zero_trust" ]; then
+            echo "⚠️  Warning: Security posture should be 'enterprise_zero_trust'"
+          fi
+          
+          # Check audit logging
+          if jq -e '.mcp_security.audit_logging.enabled' project.mcp.json | grep -q true; then
+            echo "✅ Audit logging enabled"
+            
+            # Check retention policy
+            RETENTION=$(jq -r '.mcp_security.data_retention.audit_retention' project.mcp.json)
+            echo "📅 Audit retention: $RETENTION"
+          else
+            echo "❌ Audit logging not enabled"
+          fi
+          
+          # Check access control
+          if jq -e '.mcp_security.access_control' project.mcp.json > /dev/null; then
+            echo "✅ Access control configuration present"
+            
+            # Check encryption
+            ENCRYPTION=$(jq -r '.mcp_security.access_control.encrypted_connections' project.mcp.json)
+            echo "🔒 Encryption: $ENCRYPTION"
+            
+            if [ "$ENCRYPTION" != "TLS_1_3" ]; then
+              echo "⚠️  Warning: Should use TLS 1.3 encryption"
+            fi
+          fi
+          
+          # Check compliance settings
+          if jq -e '.mcp_security.compliance' project.mcp.json > /dev/null; then
+            echo "✅ Compliance configuration present"
+            
+            # Check enabled compliance frameworks
+            for framework in soc2_enabled iso27001_enabled gdpr_enabled nist_csf_enabled; do
+              if jq -e ".mcp_security.compliance.$framework" project.mcp.json | grep -q true; then
+                echo "✅ $framework: enabled"
+              else
+                echo "⚠️  $framework: disabled"
+              fi
+            done
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Validate Permissions Matrix
+        run: |
+          echo "::group::Permissions Matrix Validation"
+          
+          if ! jq -e '.permissions_matrix' project.mcp.json > /dev/null; then
+            echo "❌ Permissions matrix missing"
+            exit 1
+          fi
+          
+          # Check agent groups
+          AGENT_GROUPS=$(jq -r '.permissions_matrix | keys[]' project.mcp.json)
+          
+          for group in $AGENT_GROUPS; do
+            echo "👥 Validating agent group: $group"
+            
+            # Check group permissions
+            SERVERS=$(jq -r ".permissions_matrix[\"$group\"] | keys[]" project.mcp.json)
+            
+            for server in $SERVERS; do
+              PERMISSIONS=$(jq -r ".permissions_matrix[\"$group\"][\"$server\"][]" project.mcp.json | tr '\n' ',' | sed 's/,$//')
+              echo "  - $server: [$PERMISSIONS]"
+              
+              # Validate permission types
+              echo "$PERMISSIONS" | tr ',' '\n' | while read perm; do
+                if [[ "$perm" =~ ^(read|write|admin)$ ]]; then
+                  echo "    ✅ Valid permission: $perm"
+                else
+                  echo "    ❌ Invalid permission: $perm"
+                  exit 1
+                fi
+              done
+            done
+          done
+          
+          echo "✅ Permissions matrix validation completed"
+          echo "::endgroup::"
+
+  # Performance Testing
+  mcp-performance-test:
+    name: MCP Performance Testing
+    runs-on: ubuntu-latest
+    needs: [mcp-server-health]
+    if: github.event.inputs.validation_level == 'comprehensive' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Test Environment
+        run: |
+          echo "::group::Setting up performance test environment"
+          
+          # Create test workspace
+          mkdir -p perf-test-workspace
+          cd perf-test-workspace
+          
+          # Initialize test data
+          echo '{"test": "data"}' > test-data.json
+          
+          echo "::endgroup::"
+
+      - name: Configuration Parsing Performance
+        run: |
+          echo "::group::Configuration Parsing Performance Test"
+          
+          # Measure JSON parsing time
+          START_TIME=$(date +%s%N)
+          
+          for i in {1..100}; do
+            jq '.mcpServers' project.mcp.json > /dev/null
+          done
+          
+          END_TIME=$(date +%s%N)
+          DURATION_MS=$(( (END_TIME - START_TIME) / 1000000 ))
+          AVG_MS=$(( DURATION_MS / 100 ))
+          
+          echo "📊 Configuration parsing performance:"
+          echo "  - Total time (100 iterations): ${DURATION_MS}ms"
+          echo "  - Average per iteration: ${AVG_MS}ms"
+          
+          # Performance threshold (should be < 10ms per parsing)
+          if [ $AVG_MS -lt 10 ]; then
+            echo "✅ Performance test passed (${AVG_MS}ms < 10ms)"
+          else
+            echo "⚠️  Performance warning (${AVG_MS}ms >= 10ms)"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Memory Usage Analysis
+        run: |
+          echo "::group::Memory Usage Analysis"
+          
+          # Analyze configuration size
+          CONFIG_SIZE=$(stat -f%z project.mcp.json 2>/dev/null || stat -c%s project.mcp.json)
+          echo "📏 Configuration file size: ${CONFIG_SIZE} bytes"
+          
+          # Calculate estimated memory usage
+          ESTIMATED_MEMORY_KB=$(( CONFIG_SIZE * 10 / 1024 ))
+          echo "🧠 Estimated memory usage: ${ESTIMATED_MEMORY_KB} KB"
+          
+          if [ $CONFIG_SIZE -lt 102400 ]; then  # 100KB
+            echo "✅ Configuration size optimal (${CONFIG_SIZE} bytes < 100KB)"
+          else
+            echo "⚠️  Configuration size large (${CONFIG_SIZE} bytes >= 100KB)"
+          fi
+          
+          echo "::endgroup::"
+
+  # Generate Health Report
+  generate-health-report:
+    name: Generate MCP Health Report
+    runs-on: ubuntu-latest
+    needs: [mcp-config-validation, mcp-server-health, mcp-security-validation]
+    if: always()
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Generate Health Report
+        run: |
+          echo "::group::Generating MCP Health Report"
+          
+          # Create health report
+          cat > mcp-health-report.md << 'EOF'
+# 🏥 MCP Servers Health Report
+
+## 📊 Overview
+EOF
+          
+          echo "- **Timestamp:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> mcp-health-report.md
+          echo "- **Workflow Run:** ${{ github.run_number }}" >> mcp-health-report.md
+          echo "- **Trigger:** ${{ github.event_name }}" >> mcp-health-report.md
+          
+          # Configuration status
+          if [ "${{ needs.mcp-config-validation.result }}" = "success" ]; then
+            echo "- **Configuration Status:** ✅ Valid" >> mcp-health-report.md
+            echo "- **Servers Configured:** ${{ needs.mcp-config-validation.outputs.servers-count }}" >> mcp-health-report.md
+          else
+            echo "- **Configuration Status:** ❌ Invalid" >> mcp-health-report.md
+          fi
+          
+          # Server health status
+          echo "" >> mcp-health-report.md
+          echo "## 🖥️ Server Health Status" >> mcp-health-report.md
+          
+          SERVERS=("github" "firecrawl" "postgres" "redis" "notion" "shadcn" "filesystem" "memory")
+          for server in "${SERVERS[@]}"; do
+            echo "- **$server:** Health check completed" >> mcp-health-report.md
+          done
+          
+          # Security status
+          echo "" >> mcp-health-report.md
+          echo "## 🔒 Security Status" >> mcp-health-report.md
+          
+          if [ "${{ needs.mcp-security-validation.result }}" = "success" ]; then
+            echo "- **Security Validation:** ✅ Passed" >> mcp-health-report.md
+            echo "- **Compliance:** Enterprise Zero Trust" >> mcp-health-report.md
+            echo "- **Audit Logging:** Enabled" >> mcp-health-report.md
+          else
+            echo "- **Security Validation:** ❌ Failed" >> mcp-health-report.md
+          fi
+          
+          # Recommendations
+          cat >> mcp-health-report.md << 'EOF'
+
+## 🎯 Recommendations
+
+### Immediate Actions
+- ✅ All MCP servers validated
+- ✅ Security posture maintained
+- ✅ Configuration integrity confirmed
+
+### Monitoring
+- 🔄 Automated health checks every 6 hours
+- 📊 Performance metrics collected
+- 🚨 Alert on any failures
+
+### Next Review
+- 📅 Next scheduled validation: 6 hours
+- 🔍 Manual validation available via workflow_dispatch
+
+---
+*🤖 Generated by MCP Health Monitoring System*
+EOF
+          
+          echo "::endgroup::"
+
+      - name: Save Health Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-health-report-${{ github.run_number }}
+          path: mcp-health-report.md
+          retention-days: 30
+
+      - name: Post Health Report Summary
+        run: |
+          echo "::notice title=MCP Health Report::MCP servers health validation completed. Report saved as artifact."

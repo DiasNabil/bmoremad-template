@@ -1,0 +1,216 @@
+# 📊 ENTERPRISE MCP AUDIT LOGGING CONFIGURATION
+# Agent: contains-test-analyzer + bmad-qa
+# Version: 1.0.0
+# Compliance: SOC2, ISO27001, GDPR
+
+audit_logging:
+  global_settings:
+    enabled: true
+    log_format: "structured_json"
+    timezone: "UTC"
+    buffer_size: "64MB"
+    flush_interval: "30s"
+    compression: "gzip"
+    
+  log_levels:
+    mcp_interactions: "INFO"
+    authentication: "INFO" 
+    authorization: "WARN"
+    security_events: "ERROR"
+    performance: "DEBUG"
+    compliance: "INFO"
+
+  log_destinations:
+    primary:
+      type: "file"
+      path: "/var/log/bmad/audit/mcp-audit.log"
+      max_size: "500MB"
+      backup_count: 10
+      rotation: "daily"
+      
+    secondary:
+      type: "syslog"
+      facility: "local1"
+      severity: "info"
+      protocol: "tcp"
+      
+    siem:
+      type: "http_webhook"
+      endpoint: "${SIEM_WEBHOOK_URL}"
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer ${SIEM_TOKEN}"
+      batch_size: 100
+      timeout: "30s"
+
+  retention_policy:
+    audit_logs:
+      retention_period: "7_years"
+      archive_after: "1_year" 
+      archive_location: "/archive/audit/"
+      archive_format: "encrypted_tar_gz"
+      
+    performance_logs:
+      retention_period: "90_days"
+      cleanup_frequency: "weekly"
+      
+    security_events:
+      retention_period: "indefinite"
+      high_priority_alerts: "immediate_escalation"
+
+  log_categories:
+    mcp_server_interactions:
+      enabled: true
+      include_payloads: false  # Security: prevent sensitive data logging
+      include_headers: true
+      include_timing: true
+      fields:
+        - timestamp
+        - agent_id
+        - server_name
+        - method
+        - resource_accessed
+        - response_status
+        - duration_ms
+        - source_ip
+        - user_agent
+        
+    authentication_events:
+      enabled: true
+      include_failed_attempts: true
+      lockout_threshold: 5
+      fields:
+        - timestamp
+        - agent_id
+        - auth_method
+        - success_status
+        - source_ip
+        - certificate_fingerprint
+        - failure_reason
+        
+    authorization_decisions:
+      enabled: true
+      log_denied_access: true
+      fields:
+        - timestamp
+        - agent_id
+        - requested_resource
+        - permission_required
+        - decision
+        - policy_matched
+        - risk_score
+        
+    file_system_access:
+      enabled: true
+      monitor_paths:
+        - "/workspace/*"
+        - "/projects/*"
+        - "/security/*"
+      fields:
+        - timestamp
+        - agent_id
+        - operation_type
+        - file_path
+        - permissions_checked
+        - access_granted
+        - file_hash_before
+        - file_hash_after
+        
+    database_interactions:
+      enabled: true
+      include_queries: false  # Security: prevent sensitive data exposure
+      include_results_count: true
+      fields:
+        - timestamp
+        - agent_id
+        - database_name
+        - operation_type
+        - table_accessed
+        - rows_affected
+        - execution_time_ms
+
+  security_monitoring:
+    anomaly_detection:
+      enabled: true
+      baseline_window: "30_days"
+      alert_threshold: "3_sigma"
+      monitored_metrics:
+        - requests_per_minute
+        - unique_resources_accessed
+        - failed_auth_rate
+        - privilege_escalation_attempts
+        
+    real_time_alerts:
+      enabled: true
+      channels:
+        - email: "${SECURITY_EMAIL}"
+        - slack: "${SECURITY_SLACK_WEBHOOK}"
+        - pagerduty: "${PAGERDUTY_SERVICE_KEY}"
+      
+      triggers:
+        - condition: "failed_auth_attempts > 5 in 5m"
+          severity: "HIGH"
+          action: "temporary_lockout"
+          
+        - condition: "privilege_escalation_detected"
+          severity: "CRITICAL"
+          action: "immediate_lockout"
+          
+        - condition: "unusual_file_access_pattern"
+          severity: "MEDIUM"
+          action: "enhanced_monitoring"
+          
+        - condition: "data_exfiltration_indicators"
+          severity: "CRITICAL"
+          action: "emergency_response"
+
+  compliance_reporting:
+    automated_reports:
+      enabled: true
+      frequency: "monthly"
+      recipients:
+        - "security-team@company.com"
+        - "compliance@company.com"
+      
+      report_types:
+        - access_summary
+        - security_incidents
+        - policy_violations
+        - performance_metrics
+        
+    audit_trail_integrity:
+      enabled: true
+      hash_chain_validation: true
+      tamper_detection: true
+      digital_signatures: true
+      
+  log_sanitization:
+    pii_detection:
+      enabled: true
+      patterns:
+        - email_addresses
+        - phone_numbers
+        - credit_cards
+        - social_security_numbers
+      action: "mask_with_hash"
+      
+    sensitive_data_filtering:
+      enabled: true
+      filter_patterns:
+        - "password"
+        - "secret"
+        - "token"
+        - "api_key"
+      replacement: "[REDACTED]"
+
+  performance_optimization:
+    async_logging: true
+    batch_processing: true
+    log_sampling:
+      enabled: false  # Disabled for security audit requirements
+      rate: "0.1"      # Would sample 10% if enabled
+    
+    log_compression:
+      enabled: true
+      algorithm: "lz4"  # Fast compression for real-time logs
+      archive_algorithm: "xz"  # Better compression for archives

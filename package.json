@@ -1,0 +1,27 @@
+{
+  "name": "bmoremad-template",
+  "version": "0.1.0",
+  "description": "BMAD+Contains Studio+MCP boilerplate template for rapid project initialization",
+  "scripts": {
+    "bmad:init": "echo 'Run /BMad/init-prd to initialize your project'",
+    "bmad:help": "echo 'Available commands: /BMad/init-prd, /BMad/init-architecture, /BMad/shard-stories'",
+    "validate:mcp": "node scripts/validate-mcp-setup.js"
+  },
+  "keywords": [
+    "bmad",
+    "contains-studio", 
+    "mcp",
+    "multi-agent",
+    "template",
+    "boilerplate"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "BMAD+Contains Studio Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/bmoremad-template"
+  }
+}

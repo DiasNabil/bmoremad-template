@@ -1,0 +1,433 @@
+{
+  "version": "1.0.0",
+  "environment": "production",
+  "description": "BMAD+Contains Studio+MCP Observability Configuration",
+  
+  "monitoring": {
+    "sampling_interval_seconds": 30,
+    "retention_policies": {
+      "metrics": {
+        "real_time": "1h",
+        "hourly": "7d", 
+        "daily": "30d",
+        "weekly": "90d",
+        "monthly": "1y"
+      },
+      "logs": {
+        "debug": "24h",
+        "info": "7d",
+        "warning": "30d", 
+        "error": "90d",
+        "critical": "1y"
+      },
+      "traces": {
+        "detailed": "24h",
+        "sampled": "7d",
+        "aggregated": "30d"
+      }
+    },
+    "compression": {
+      "enabled": true,
+      "algorithm": "gzip",
+      "level": 6
+    }
+  },
+
+  "thresholds": {
+    "production": {
+      "critical": {
+        "agent_latency_ms": 3000,
+        "mcp_response_time_ms": 1500,
+        "error_rate_percent": 3.0,
+        "cpu_utilization_percent": 85.0,
+        "memory_utilization_percent": 80.0,
+        "disk_utilization_percent": 90.0,
+        "network_latency_ms": 200,
+        "security_violations_count": 1,
+        "coordination_failure_rate_percent": 5.0,
+        "database_connection_pool_utilization_percent": 90.0
+      },
+      "warning": {
+        "agent_latency_ms": 2000,
+        "mcp_response_time_ms": 1000,
+        "error_rate_percent": 1.0,
+        "cpu_utilization_percent": 70.0,
+        "memory_utilization_percent": 65.0,
+        "disk_utilization_percent": 80.0,
+        "network_latency_ms": 150,
+        "coordination_failure_rate_percent": 2.0,
+        "database_connection_pool_utilization_percent": 75.0
+      }
+    },
+    "development": {
+      "critical": {
+        "agent_latency_ms": 5000,
+        "mcp_response_time_ms": 3000,
+        "error_rate_percent": 10.0,
+        "cpu_utilization_percent": 95.0,
+        "memory_utilization_percent": 90.0
+      },
+      "warning": {
+        "agent_latency_ms": 3000,
+        "mcp_response_time_ms": 2000,
+        "error_rate_percent": 5.0,
+        "cpu_utilization_percent": 80.0,
+        "memory_utilization_percent": 75.0
+      }
+    }
+  },
+
+  "agents": {
+    "bmad_core": [
+      "bmad-orchestrator-enhanced",
+      "bmad-master", 
+      "bmad-analyst",
+      "bmad-architect",
+      "bmad-pm",
+      "bmad-devops",
+      "bmad-security", 
+      "bmad-qa"
+    ],
+    "contains_design": [
+      "contains-design-ux-researcher",
+      "contains-design-ui",
+      "contains-design-brand"
+    ],
+    "contains_engineering": [
+      "contains-eng-frontend",
+      "contains-eng-backend-architect", 
+      "contains-eng-backend-dev",
+      "contains-eng-fullstack",
+      "contains-eng-database",
+      "contains-eng-devops"
+    ],
+    "contains_product": [
+      "contains-product-prioritizer",
+      "contains-product-specs"
+    ],
+    "contains_testing": [
+      "contains-test-performance",
+      "contains-test-api",
+      "contains-test-security",
+      "contains-test-e2e",
+      "contains-test-integration"
+    ]
+  },
+
+  "mcp_servers": {
+    "core_infrastructure": [
+      {
+        "name": "postgres",
+        "description": "Primary database coordination",
+        "priority": "critical",
+        "health_check_endpoint": "/health",
+        "expected_response_time_ms": 200,
+        "connection_pool_max": 50
+      },
+      {
+        "name": "redis", 
+        "description": "Caching and session storage",
+        "priority": "critical",
+        "health_check_endpoint": "/ping",
+        "expected_response_time_ms": 50,
+        "connection_pool_max": 100
+      }
+    ],
+    "external_services": [
+      {
+        "name": "github",
+        "description": "Source control management",
+        "priority": "high",
+        "health_check_endpoint": "/api/v3/user",
+        "expected_response_time_ms": 500,
+        "rate_limit_per_hour": 5000
+      },
+      {
+        "name": "notion",
+        "description": "Documentation and knowledge base", 
+        "priority": "medium",
+        "health_check_endpoint": "/api/v1/users/me",
+        "expected_response_time_ms": 800,
+        "rate_limit_per_minute": 100
+      },
+      {
+        "name": "firecrawl",
+        "description": "Web scraping and content analysis",
+        "priority": "medium", 
+        "health_check_endpoint": "/health",
+        "expected_response_time_ms": 1000,
+        "rate_limit_per_minute": 50
+      },
+      {
+        "name": "shadcn",
+        "description": "UI component library",
+        "priority": "low",
+        "health_check_endpoint": "/health",
+        "expected_response_time_ms": 300
+      }
+    ],
+    "utility_services": [
+      {
+        "name": "filesystem",
+        "description": "File system operations",
+        "priority": "medium",
+        "health_check_method": "directory_check",
+        "expected_response_time_ms": 100
+      },
+      {
+        "name": "memory",
+        "description": "In-memory storage and caching",
+        "priority": "low",
+        "health_check_method": "memory_test",
+        "expected_response_time_ms": 10
+      }
+    ]
+  },
+
+  "alerting": {
+    "channels": {
+      "slack": {
+        "enabled": true,
+        "webhook_url_env": "SLACK_WEBHOOK_URL",
+        "default_channel": "#bmad-alerts",
+        "critical_channel": "#bmad-critical",
+        "test_channel": "#bmad-test"
+      },
+      "microsoft_teams": {
+        "enabled": false,
+        "webhook_url_env": "TEAMS_WEBHOOK_URL"
+      },
+      "email": {
+        "enabled": true,
+        "smtp_server_env": "SMTP_SERVER",
+        "from_email_env": "ALERT_FROM_EMAIL", 
+        "to_emails_env": "ALERT_TO_EMAILS",
+        "templates": {
+          "critical": "critical-alert-template.html",
+          "warning": "warning-alert-template.html", 
+          "resolved": "resolved-alert-template.html"
+        }
+      },
+      "pagerduty": {
+        "enabled": false,
+        "integration_key_env": "PAGERDUTY_INTEGRATION_KEY",
+        "severity_mapping": {
+          "critical": "critical",
+          "warning": "warning",
+          "info": "info"
+        }
+      }
+    },
+    "escalation_rules": {
+      "level_1": {
+        "time_minutes": 5,
+        "recipients": ["team-leads"],
+        "channels": ["slack"]
+      },
+      "level_2": {
+        "time_minutes": 15,
+        "recipients": ["team-leads", "managers"],
+        "channels": ["slack", "email"]
+      },
+      "level_3": {
+        "time_minutes": 30,
+        "recipients": ["team-leads", "managers", "directors"],
+        "channels": ["slack", "email", "pagerduty"]
+      },
+      "level_4": {
+        "time_minutes": 60,
+        "recipients": ["team-leads", "managers", "directors", "executives"],
+        "channels": ["slack", "email", "pagerduty"]
+      }
+    },
+    "correlation": {
+      "enabled": true,
+      "time_window_seconds": 300,
+      "similarity_threshold": 0.8,
+      "max_correlated_alerts": 10
+    },
+    "predictive": {
+      "enabled": true,
+      "time_window_seconds": 1800,
+      "trend_analysis_points": 20,
+      "prediction_confidence_threshold": 0.75,
+      "lead_time_seconds": 300
+    }
+  },
+
+  "reporting": {
+    "schedules": {
+      "weekly": {
+        "enabled": true,
+        "day_of_week": "monday",
+        "time": "09:00",
+        "timezone": "UTC",
+        "formats": ["html", "json"],
+        "email_enabled": true
+      },
+      "monthly": {
+        "enabled": true,
+        "day_of_month": 1,
+        "time": "10:00", 
+        "timezone": "UTC",
+        "formats": ["html", "json", "excel"],
+        "email_enabled": true
+      },
+      "quarterly": {
+        "enabled": true,
+        "formats": ["html", "json", "excel", "pdf"],
+        "email_enabled": true,
+        "executive_summary": true
+      }
+    },
+    "kpis": {
+      "system_uptime": {
+        "target": 99.9,
+        "unit": "percent",
+        "priority": "critical"
+      },
+      "response_time": {
+        "target": 2.0,
+        "unit": "seconds", 
+        "priority": "critical"
+      },
+      "error_rate": {
+        "target": 1.0,
+        "unit": "percent",
+        "priority": "critical"
+      },
+      "agent_coordination_success": {
+        "target": 98.0,
+        "unit": "percent",
+        "priority": "high"
+      },
+      "mcp_availability": {
+        "target": 99.5,
+        "unit": "percent",
+        "priority": "high"
+      },
+      "security_compliance": {
+        "target": 100.0,
+        "unit": "percent",
+        "priority": "critical"
+      },
+      "cost_per_transaction": {
+        "target": 0.05,
+        "unit": "usd",
+        "priority": "medium"
+      },
+      "user_satisfaction": {
+        "target": 4.5,
+        "unit": "rating_5",
+        "priority": "high"
+      }
+    }
+  },
+
+  "dashboards": {
+    "executive": {
+      "refresh_interval_seconds": 300,
+      "widgets": [
+        "system_health_score",
+        "business_kpis",
+        "revenue_metrics", 
+        "cost_metrics",
+        "user_satisfaction"
+      ]
+    },
+    "operational": {
+      "refresh_interval_seconds": 60,
+      "widgets": [
+        "agent_coordination_metrics",
+        "mcp_server_status",
+        "infrastructure_metrics",
+        "performance_trends",
+        "alert_summary"
+      ]
+    },
+    "technical": {
+      "refresh_interval_seconds": 30,
+      "widgets": [
+        "detailed_latency_metrics",
+        "resource_utilization",
+        "error_rate_breakdown",
+        "throughput_analysis",
+        "database_metrics",
+        "cache_performance"
+      ]
+    }
+  },
+
+  "performance_testing": {
+    "load_testing": {
+      "enabled": true,
+      "schedule": "daily",
+      "scenarios": [
+        {
+          "name": "normal_load",
+          "virtual_users": 100,
+          "duration_minutes": 15,
+          "ramp_up_minutes": 5
+        },
+        {
+          "name": "peak_load", 
+          "virtual_users": 500,
+          "duration_minutes": 10,
+          "ramp_up_minutes": 2
+        },
+        {
+          "name": "stress_test",
+          "virtual_users": 1000,
+          "duration_minutes": 5,
+          "ramp_up_minutes": 1
+        }
+      ]
+    },
+    "benchmarking": {
+      "enabled": true,
+      "frequency": "weekly",
+      "metrics": [
+        "coordination_latency",
+        "parallel_execution_efficiency",
+        "mcp_aggregate_latency", 
+        "throughput_capacity",
+        "scalability_limits"
+      ]
+    }
+  },
+
+  "security": {
+    "audit_logging": {
+      "enabled": true,
+      "log_level": "INFO",
+      "include_payloads": false,
+      "immutable_storage": true,
+      "real_time_processing": true,
+      "retention_years": 7
+    },
+    "compliance_monitoring": {
+      "soc2_enabled": true,
+      "iso27001_enabled": true,
+      "gdpr_enabled": true,
+      "nist_csf_enabled": true,
+      "reporting_frequency": "monthly"
+    },
+    "threat_detection": {
+      "enabled": true,
+      "anomaly_detection": true,
+      "behavioral_analysis": true,
+      "real_time_blocking": true
+    }
+  },
+
+  "data_export": {
+    "formats": ["json", "csv", "parquet"],
+    "compression": true,
+    "encryption": true,
+    "destinations": [
+      "local_filesystem",
+      "cloud_storage",
+      "data_warehouse"
+    ]
+  }
+}

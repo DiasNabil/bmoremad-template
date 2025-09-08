@@ -1,0 +1,419 @@
+name: "Contains Studio Sequential Coordination"
+id: "contains-studio-coordination"
+version: "1.0"
+description: "Patterns de coordination séquentielle optimisée BMAD+Contains Studio pour expertise spécialisée"
+category: "hybrid-coordination"
+
+trigger_patterns:
+  - "expertise spécialisée"
+  - "équipe design avancée"
+  - "coordination Contains"
+  - "workflow hybride"
+  - "expertise technique approfondie"
+  - "optimisation séquentielle"
+  - "design system complet"
+  - "architecture backend experte"
+
+sequential_patterns:
+
+  design_system_complete:
+    name: "Design System Complet - Coordination UX/UI"
+    description: "Création design system avec expertise UX/UI coordonnée séquentiellement"
+    domain: "design"
+    agents_sequence:
+      - step: 1
+        agent: "contains-design-ux-researcher"
+        role: "recherche-utilisateur"
+        tasks: ["user-research", "persona-creation", "user-journey-mapping"]
+        outputs: ["docs/ux/user-research.md", "docs/ux/personas.md", "docs/ux/journey-maps.md"]
+        duration_estimate: "25-35 minutes"
+        wait_for: []
+        
+      - step: 2
+        agent: "bmad-architect"
+        role: "structure-information"
+        tasks: ["information-architecture", "content-strategy"]
+        outputs: ["docs/architecture/ia-structure.md", "docs/content/strategy.md"]
+        duration_estimate: "20-30 minutes"
+        wait_for: ["user-research:done"]
+        
+      - step: 3
+        agent: "contains-design-ui"
+        role: "design-interface"
+        tasks: ["wireframing", "ui-design", "design-system-creation"]
+        outputs: ["docs/design/wireframes.md", "docs/design/ui-kit.md", "docs/design/design-system.md"]
+        duration_estimate: "30-45 minutes"
+        wait_for: ["information-architecture:done"]
+        
+      - step: 4
+        agent: "contains-eng-frontend"
+        role: "implementation-design"
+        tasks: ["component-library", "design-tokens", "responsive-implementation"]
+        outputs: ["src/components/", "src/design-tokens/", "docs/frontend/implementation.md"]
+        duration_estimate: "35-50 minutes"
+        wait_for: ["design-system-creation:done"]
+
+    validation_gates:
+      - gate: "ux_research_validated"
+        criteria: ["User personas validated", "Journey maps complete", "Research insights documented"]
+        
+      - gate: "architecture_aligned"
+        criteria: ["IA structure aligns with user needs", "Content strategy defined"]
+        
+      - gate: "design_system_coherent"
+        criteria: ["UI kit consistent", "Design system documented", "Accessibility considered"]
+        
+      - gate: "implementation_ready"
+        criteria: ["Components functional", "Design tokens implemented", "Responsive design verified"]
+
+    success_criteria:
+      - "Design system complet et cohérent"
+      - "Implémentation frontend fonctionnelle"
+      - "Documentation utilisateur complète"
+      - "Validation UX approfondie"
+      - "Architecture information optimisée"
+
+  api_enterprise_robust:
+    name: "API Enterprise Robuste - Coordination Backend/Test"
+    description: "Développement API enterprise avec architecture backend experte et tests exhaustifs"
+    domain: "engineering"
+    agents_sequence:
+      - step: 1
+        agent: "bmad-analyst"
+        role: "analyse-besoins"
+        tasks: ["api-requirements", "business-rules", "performance-criteria"]
+        outputs: ["docs/api/requirements.md", "docs/api/business-rules.md", "docs/api/performance-specs.md"]
+        duration_estimate: "20-30 minutes"
+        wait_for: []
+        
+      - step: 2
+        agent: "contains-eng-backend-architect"
+        role: "architecture-api"
+        tasks: ["api-design", "data-model", "security-architecture", "scalability-design"]
+        outputs: ["docs/api/architecture.md", "docs/api/data-model.md", "docs/api/security-specs.md"]
+        duration_estimate: "40-55 minutes"
+        wait_for: ["api-requirements:done"]
+        
+      - step: 3
+        agent: "bmad-dev"
+        role: "implementation-core"
+        tasks: ["core-api-implementation", "business-logic", "data-access-layer"]
+        outputs: ["src/api/", "src/business/", "src/data/"]
+        duration_estimate: "45-65 minutes"
+        wait_for: ["api-design:done"]
+        
+      - step: 4
+        agent: "contains-test-api"
+        role: "tests-api-complets"
+        tasks: ["unit-tests", "integration-tests", "contract-tests"]
+        outputs: ["tests/unit/", "tests/integration/", "tests/contract/"]
+        duration_estimate: "30-45 minutes"
+        wait_for: ["core-api-implementation:done"]
+        
+      - step: 5
+        agent: "contains-test-performance"
+        role: "validation-performance"
+        tasks: ["load-testing", "stress-testing", "performance-optimization"]
+        outputs: ["tests/performance/", "docs/performance/reports.md", "docs/performance/optimization.md"]
+        duration_estimate: "25-40 minutes"
+        wait_for: ["integration-tests:done"]
+
+    validation_gates:
+      - gate: "requirements_complete"
+        criteria: ["Business requirements documented", "Performance criteria defined", "Security requirements specified"]
+        
+      - gate: "architecture_solid"
+        criteria: ["API design reviewed", "Data model validated", "Security architecture approved", "Scalability verified"]
+        
+      - gate: "implementation_functional"
+        criteria: ["Core API functional", "Business logic implemented", "Data access working"]
+        
+      - gate: "testing_comprehensive"
+        criteria: ["All test types passed", "Coverage > 90%", "Contract tests validated"]
+        
+      - gate: "performance_validated"
+        criteria: ["Load tests passed", "Performance targets met", "Optimization documented"]
+
+    success_criteria:
+      - "API enterprise fonctionnelle et sécurisée"
+      - "Architecture backend scalable"
+      - "Tests exhaustifs (>90% coverage)"
+      - "Performance validée sous charge"
+      - "Documentation technique complète"
+
+  sprint_optimization_advanced:
+    name: "Sprint Optimization Avancée - Coordination Produit/Process"
+    description: "Optimisation sprint avec analyse produit approfondie et amélioration processus"
+    domain: "product-management"
+    agents_sequence:
+      - step: 1
+        agent: "bmad-analyst"
+        role: "analyse-contexte"
+        tasks: ["sprint-retrospective-analysis", "team-velocity-analysis", "blocker-identification"]
+        outputs: ["docs/sprint/retrospective.md", "docs/sprint/velocity-analysis.md", "docs/sprint/blockers.md"]
+        duration_estimate: "15-25 minutes"
+        wait_for: []
+        
+      - step: 2
+        agent: "contains-product-prioritizer"
+        role: "priorisation-avancee"
+        tasks: ["value-impact-analysis", "risk-assessment", "dependency-mapping"]
+        outputs: ["docs/product/value-matrix.md", "docs/product/risk-analysis.md", "docs/product/dependencies.md"]
+        duration_estimate: "25-35 minutes"
+        wait_for: ["sprint-retrospective-analysis:done"]
+        
+      - step: 3
+        agent: "bmad-sm"
+        role: "planning-optimise"
+        tasks: ["story-breakdown", "capacity-planning", "risk-mitigation"]
+        outputs: ["docs/sprint/stories.md", "docs/sprint/capacity-plan.md", "docs/sprint/risk-mitigation.md"]
+        duration_estimate: "20-30 minutes"
+        wait_for: ["value-impact-analysis:done"]
+        
+      - step: 4
+        agent: "contains-workflow-optimizer"
+        role: "optimisation-processus"
+        tasks: ["workflow-analysis", "automation-opportunities", "efficiency-improvements"]
+        outputs: ["docs/process/workflow-analysis.md", "docs/process/automation-plan.md", "docs/process/improvements.md"]
+        duration_estimate: "20-30 minutes"
+        wait_for: ["capacity-planning:done"]
+
+    validation_gates:
+      - gate: "analysis_complete"
+        criteria: ["Retrospective insights captured", "Velocity trends identified", "Blockers documented"]
+        
+      - gate: "prioritization_data_driven"
+        criteria: ["Value matrix completed", "Risks assessed", "Dependencies mapped"]
+        
+      - gate: "sprint_plan_optimized"
+        criteria: ["Stories properly broken down", "Capacity realistic", "Risks mitigated"]
+        
+      - gate: "process_improvements_defined"
+        criteria: ["Workflow optimizations identified", "Automation plan ready", "Efficiency gains quantified"]
+
+    success_criteria:
+      - "Sprint planning data-driven et optimisé"
+      - "Priorisation basée sur valeur/impact"
+      - "Processus workflow amélioré"
+      - "Automation opportunities identifiées"
+      - "Vélocité équipe optimisée"
+
+  deployment_pipeline_secure:
+    name: "Pipeline Déploiement Sécurisé - Coordination DevOps/QA"
+    description: "Mise en place pipeline CI/CD sécurisé avec validation QA intégrée"
+    domain: "devops-security"
+    agents_sequence:
+      - step: 1
+        agent: "bmad-architect"
+        role: "architecture-pipeline"
+        tasks: ["pipeline-design", "security-requirements", "compliance-requirements"]
+        outputs: ["docs/devops/pipeline-architecture.md", "docs/security/requirements.md", "docs/compliance/checklist.md"]
+        duration_estimate: "25-35 minutes"
+        wait_for: []
+        
+      - step: 2
+        agent: "contains-eng-devops"
+        role: "implementation-devops"
+        tasks: ["ci-cd-setup", "infrastructure-as-code", "monitoring-setup", "security-scanning"]
+        outputs: [".github/workflows/", "terraform/", "monitoring/", "security/"]
+        duration_estimate: "45-60 minutes"
+        wait_for: ["pipeline-design:done"]
+        
+      - step: 3
+        agent: "bmad-qa"
+        role: "integration-qa"
+        tasks: ["qa-gates-setup", "automated-testing", "quality-metrics"]
+        outputs: ["tests/qa-gates/", "tests/automated/", "docs/qa/metrics.md"]
+        duration_estimate: "30-40 minutes"
+        wait_for: ["ci-cd-setup:done"]
+        
+      - step: 4
+        agent: "contains-test-analyzer"
+        role: "validation-pipeline"
+        tasks: ["pipeline-testing", "performance-validation", "security-validation"]
+        outputs: ["tests/pipeline/", "docs/validation/performance.md", "docs/validation/security.md"]
+        duration_estimate: "25-35 minutes"
+        wait_for: ["qa-gates-setup:done"]
+
+    validation_gates:
+      - gate: "architecture_approved"
+        criteria: ["Pipeline design reviewed", "Security requirements defined", "Compliance verified"]
+        
+      - gate: "pipeline_functional"
+        criteria: ["CI/CD working", "IaC deployed", "Monitoring active", "Security scanning enabled"]
+        
+      - gate: "qa_integrated"
+        criteria: ["QA gates operational", "Automated tests passing", "Quality metrics tracked"]
+        
+      - gate: "pipeline_validated"
+        criteria: ["End-to-end tests passed", "Performance validated", "Security verified"]
+
+    success_criteria:
+      - "Pipeline CI/CD sécurisé opérationnel"
+      - "Infrastructure as Code déployée"
+      - "QA gates intégrées et fonctionnelles"
+      - "Monitoring et alerting actifs"
+      - "Sécurité et compliance validées"
+
+  creative_prototyping_rapid:
+    name: "Prototypage Créatif Rapide - Coordination Innovation/Design"
+    description: "Création prototypes innovants avec approche créative et validation concept"
+    domain: "innovation-design"
+    agents_sequence:
+      - step: 1
+        agent: "contains-design-whimsy"
+        role: "ideation-creative"
+        tasks: ["creative-brainstorming", "concept-exploration", "innovative-features"]
+        outputs: ["docs/creative/brainstorm.md", "docs/creative/concepts.md", "docs/creative/features.md"]
+        duration_estimate: "20-30 minutes"
+        wait_for: []
+        
+      - step: 2
+        agent: "bmad-po"
+        role: "validation-concept"
+        tasks: ["concept-validation", "market-fit-analysis", "user-value-assessment"]
+        outputs: ["docs/product/concept-validation.md", "docs/product/market-analysis.md", "docs/product/value-prop.md"]
+        duration_estimate: "20-30 minutes"
+        wait_for: ["creative-brainstorming:done"]
+        
+      - step: 3
+        agent: "contains-eng-prototyper"
+        role: "prototypage-rapide"
+        tasks: ["rapid-prototype", "technical-feasibility", "mvp-implementation"]
+        outputs: ["prototypes/", "docs/technical/feasibility.md", "src/mvp/"]
+        duration_estimate: "35-50 minutes"
+        wait_for: ["concept-validation:done"]
+        
+      - step: 4
+        agent: "contains-design-ui"
+        role: "polish-interface"
+        tasks: ["ui-refinement", "user-experience-optimization", "visual-polish"]
+        outputs: ["docs/design/refined-ui.md", "assets/ui/", "docs/ux/optimized.md"]
+        duration_estimate: "25-35 minutes"
+        wait_for: ["rapid-prototype:done"]
+
+    validation_gates:
+      - gate: "creative_concepts_defined"
+        criteria: ["Creative concepts documented", "Innovation features identified", "Brainstorm results captured"]
+        
+      - gate: "concept_market_validated"
+        criteria: ["Market fit assessed", "User value confirmed", "Business case validated"]
+        
+      - gate: "prototype_functional"
+        criteria: ["Working prototype delivered", "Technical feasibility confirmed", "MVP features implemented"]
+        
+      - gate: "ui_polished"
+        criteria: ["User interface refined", "UX optimized", "Visual design polished"]
+
+    success_criteria:
+      - "Concept innovant validé et prototypé"
+      - "Faisabilité technique confirmée"
+      - "Interface utilisateur polie"
+      - "Valeur utilisateur démontrée"
+      - "Prototype prêt pour tests utilisateur"
+
+coordination_intelligence:
+  pattern_selection:
+    triggers:
+      design_focus: ["interface", "ux", "design system", "user experience"]
+      engineering_focus: ["api", "backend", "performance", "architecture"]
+      product_focus: ["sprint", "prioritization", "roadmap", "strategy"]
+      devops_focus: ["pipeline", "deployment", "infrastructure", "security"]
+      innovation_focus: ["prototype", "creative", "innovation", "concept"]
+    
+    auto_routing:
+      - pattern: "design_system_complete"
+        keywords: ["design system", "ui kit", "interface complète", "ux recherche"]
+        confidence: 0.95
+        
+      - pattern: "api_enterprise_robust"
+        keywords: ["api robuste", "backend architecture", "performance api"]
+        confidence: 0.90
+        
+      - pattern: "sprint_optimization_advanced"
+        keywords: ["optimiser sprint", "priorisation avancée", "workflow amélioration"]
+        confidence: 0.85
+        
+      - pattern: "deployment_pipeline_secure"
+        keywords: ["pipeline sécurisé", "ci cd", "déploiement automatisé"]
+        confidence: 0.88
+        
+      - pattern: "creative_prototyping_rapid"
+        keywords: ["prototype créatif", "innovation rapide", "concept validation"]
+        confidence: 0.87
+
+sequential_optimization:
+  dependency_management:
+    - "Automatic dependency resolution between steps"
+    - "Wait conditions based on output validation"
+    - "Parallel execution when dependencies allow"
+    - "Rollback capability for failed steps"
+    
+  resource_efficiency:
+    - "Intelligent agent scheduling"
+    - "Resource pooling for similar tasks"
+    - "Context preservation between steps"
+    - "Minimal context switching overhead"
+    
+  quality_assurance:
+    - "Validation gates at each step"
+    - "Quality criteria enforcement"
+    - "Automated rollback on quality failure"
+    - "Continuous quality monitoring"
+
+monitoring_and_metrics:
+  step_tracking:
+    - "Individual step progress monitoring"
+    - "Duration tracking and optimization"
+    - "Success rate per step and pattern"
+    - "Resource utilization per agent"
+    
+  quality_metrics:
+    - "Validation gate success rates"
+    - "Quality criteria compliance"
+    - "User satisfaction per pattern"
+    - "Pattern effectiveness analysis"
+    
+  performance_optimization:
+    - "Step duration optimization"
+    - "Dependency path optimization"
+    - "Agent load balancing"
+    - "Pattern selection accuracy"
+
+integration_bmad_core:
+  backward_compatibility:
+    - "All existing BMAD workflows preserved"
+    - "Standard BMAD commands still functional"
+    - "No breaking changes to existing agents"
+    - "Gradual migration path available"
+    
+  enhanced_orchestration:
+    - "bmad-orchestrator enhanced with Contains coordination"
+    - "Natural language routing to Contains patterns"
+    - "Hybrid workflow execution capabilities"
+    - "Unified reporting and logging"
+    
+  workflow_extensions:
+    - "Existing workflows can trigger Contains patterns"
+    - "Contains patterns can feed back to BMAD workflows"
+    - "Cross-domain coordination supported"
+    - "Multi-pattern execution sequences"
+
+success_indicators:
+  technical_metrics:
+    - "Pattern execution success rate > 95%"
+    - "Average pattern completion time < 2 hours"
+    - "Quality gate pass rate > 98%"
+    - "Agent coordination conflicts < 2%"
+    
+  user_experience:
+    - "Natural language pattern selection accuracy > 90%"
+    - "User satisfaction with sequential coordination > 4.5/5"
+    - "Workflow completion without manual intervention > 85%"
+    - "Documentation clarity and completeness > 95%"
+    
+  business_value:
+    - "Time to delivery reduced by 40-60%"
+    - "Quality improvement measurable in outputs"
+    - "Team productivity increase > 30%"
+    - "Expertise accessibility improved significantly"

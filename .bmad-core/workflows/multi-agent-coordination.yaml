@@ -1,0 +1,231 @@
+name: "Multi-Agent Coordination Workflow"
+id: "multi-agent-coordination"  
+version: "1.0"
+description: "Coordination parallèle d'agents BMAD pour accélération projets complexes"
+category: "advanced-coordination"
+
+trigger_patterns:
+  - "nouveau projet complet"
+  - "équipe sur ce projet" 
+  - "lancer plusieurs agents"
+  - "coordination parallèle"
+  - "planifier sprint avec équipe"
+  - "review complet architecture"
+
+coordination_patterns:
+  
+  greenfield_launch:
+    name: "Greenfield Project Team Launch"
+    description: "Lancement coordonné pour nouveau projet complet"
+    agents:
+      - agent: "analyst"
+        role: "market-research"
+        tasks: ["market-research", "competitor-analysis"]
+        outputs: ["docs/research/market-analysis.md", "docs/research/competitors.md"]
+        duration_estimate: "15-25 minutes"
+        
+      - agent: "architect"  
+        role: "tech-foundation"
+        tasks: ["tech-stack-analysis", "preliminary-architecture"]
+        outputs: ["docs/architecture/tech-stack.md", "docs/architecture/overview.md"]  
+        duration_estimate: "20-30 minutes"
+        
+      - agent: "pm"
+        role: "product-definition"
+        tasks: ["prd-outline", "feature-prioritization"] 
+        outputs: ["docs/prd/outline.md", "docs/prd/features-priority.md"]
+        duration_estimate: "18-25 minutes"
+    
+    synchronization_points:
+      - name: "research_complete"
+        triggers: ["market-research:done", "tech-stack-analysis:done"]
+        unlocks: ["detailed-prd-creation", "full-architecture-design"]
+        
+      - name: "foundation_ready"
+        triggers: ["prd-outline:done", "preliminary-architecture:done"] 
+        unlocks: ["story-breakdown", "development-planning"]
+    
+    success_criteria:
+      - "Market analysis report completed"
+      - "Technical stack defined and documented"  
+      - "Product requirements outlined"
+      - "No file conflicts occurred"
+      - "All deliverables validated"
+
+  sprint_planning_coordination:
+    name: "Sprint Planning Team Coordination"
+    description: "Planification sprint avec équipe coordonnée"
+    prerequisites: ["prd.md exists", "architecture.md exists"]
+    agents:
+      - agent: "sm"
+        role: "story-creation"
+        tasks: ["shard-prd-to-stories", "acceptance-criteria"]
+        outputs: ["docs/stories/epic-*.md"]
+        duration_estimate: "12-20 minutes"
+        
+      - agent: "qa"
+        role: "test-scenarios"  
+        tasks: ["test-case-design", "nfr-validation"]
+        outputs: ["docs/qa/test-scenarios.md", "docs/qa/nfr-checklist.md"]
+        duration_estimate: "15-22 minutes"
+        
+      - agent: "dev"
+        role: "technical-analysis"
+        tasks: ["complexity-estimation", "dependency-analysis"]
+        outputs: ["docs/dev/complexity-matrix.md", "docs/dev/dependencies.md"]
+        duration_estimate: "10-18 minutes"
+    
+    synchronization_points:
+      - name: "stories_drafted"
+        triggers: ["shard-prd-to-stories:done"]
+        unlocks: ["test-scenarios:start", "complexity-estimation:start"]
+        
+      - name: "analysis_complete"  
+        triggers: ["test-scenarios:done", "complexity-estimation:done"]
+        unlocks: ["sprint-backlog-finalization"]
+    
+    success_criteria:
+      - "All stories created with acceptance criteria"
+      - "Test scenarios mapped to stories" 
+      - "Complexity estimates available"
+      - "Sprint backlog ready for development"
+
+  architecture_review_team:
+    name: "Architecture Review Team"
+    description: "Review architecture avec expertise multi-disciplinaire"
+    prerequisites: ["docs/architecture/ exists"]
+    agents:
+      - agent: "architect"
+        role: "design-review"
+        tasks: ["architecture-validation", "improvement-suggestions"]
+        outputs: ["docs/architecture/review-report.md"]
+        duration_estimate: "20-30 minutes"
+        
+      - agent: "qa"
+        role: "security-nfr-review"
+        tasks: ["security-assessment", "nfr-validation"]  
+        outputs: ["docs/qa/security-review.md", "docs/qa/nfr-assessment.md"]
+        duration_estimate: "18-25 minutes"
+        
+      - agent: "dev"  
+        role: "feasibility-performance"
+        tasks: ["implementation-feasibility", "performance-analysis"]
+        outputs: ["docs/dev/feasibility-report.md", "docs/dev/performance-analysis.md"]
+        duration_estimate: "15-22 minutes"
+    
+    synchronization_points:
+      - name: "individual_reviews_complete"
+        triggers: ["design-review:done", "security-assessment:done", "feasibility-analysis:done"]
+        unlocks: ["consolidated-recommendations"]
+    
+    success_criteria:
+      - "Architecture validated from multiple perspectives"
+      - "Security and NFR concerns identified"
+      - "Implementation feasibility confirmed"  
+      - "Consolidated recommendations provided"
+
+  release_preparation_team:
+    name: "Release Preparation Coordination" 
+    description: "Préparation release avec validation multi-équipes"
+    prerequisites: ["code ready", "features complete"]
+    agents:
+      - agent: "qa"
+        role: "quality-validation"
+        tasks: ["qa-gate-execution", "final-testing"]
+        outputs: ["docs/qa/release-gate-report.md"]  
+        duration_estimate: "25-35 minutes"
+        
+      - agent: "dev"
+        role: "deployment-prep"
+        tasks: ["deployment-checklist", "rollback-procedures"]
+        outputs: ["docs/dev/deployment-plan.md", "docs/dev/rollback-plan.md"]
+        duration_estimate: "20-30 minutes"
+        
+      - agent: "sm"
+        role: "documentation-release"
+        tasks: ["release-notes", "user-documentation"]
+        outputs: ["docs/release/release-notes.md", "docs/release/user-guide.md"] 
+        duration_estimate: "15-25 minutes"
+    
+    synchronization_points:
+      - name: "validation_complete"
+        triggers: ["qa-gate-execution:done", "deployment-checklist:done"]
+        unlocks: ["go-no-go-decision"]
+    
+    success_criteria:
+      - "Quality gate passed"
+      - "Deployment procedures validated"
+      - "Release documentation complete"
+      - "Go/No-Go decision made"
+
+workflow_execution:
+  phases:
+    1_detection_and_planning:
+      - "Parse user request for coordination opportunities"
+      - "Select appropriate coordination pattern"
+      - "Validate prerequisites and context"
+      - "Generate execution plan with resource allocation"
+      
+    2_resource_preparation:
+      - "Create isolated workspaces for each agent"
+      - "Set up file system permissions and locks"
+      - "Initialize communication channels"
+      - "Prepare conflict detection mechanisms"
+      
+    3_parallel_execution:
+      - "Launch agents simultaneously using Task tool"
+      - "Monitor progress and resource usage"
+      - "Handle synchronization points"
+      - "Manage conflicts and communication"
+      
+    4_integration_and_delivery:
+      - "Aggregate results from all agents"
+      - "Validate deliverable consistency"  
+      - "Generate integrated summary report"
+      - "Clean up resources and log completion"
+
+conflict_resolution:
+  prevention:
+    - "File path analysis and workspace isolation"
+    - "Resource dependency mapping" 
+    - "Logical resource conflict detection"
+    - "Timeline and priority validation"
+    
+  resolution:
+    - "Automatic queuing for non-critical conflicts"
+    - "Sequential fallback for critical path items"
+    - "User escalation for complex situations"
+    - "Rollback mechanisms for irreconcilable conflicts"
+
+monitoring_and_audit:
+  real_time_tracking:
+    - "Agent progress and status monitoring"
+    - "Resource utilization tracking"
+    - "Synchronization point status"
+    - "Performance metrics collection"
+    
+  audit_logging:
+    - "All coordination events logged"
+    - "Resource allocation and conflicts tracked"  
+    - "Agent communication recorded"
+    - "Performance and outcome metrics stored"
+
+integration_points:
+  existing_workflows:
+    - "Can be triggered from any existing BMAD workflow"
+    - "Results feed into standard workflow continuations"
+    - "Maintains backward compatibility"
+    - "Extends rather than replaces existing processes"
+    
+  claude_code_integration:
+    - "Native Task tool usage for agent launching"
+    - "Standard BMAD command integration"
+    - "Natural language interface compatibility"
+    - "Security and hooks compliance"
+
+performance_targets:
+  time_savings: "40-60% reduction vs sequential execution"
+  resource_efficiency: "Optimal CPU/IO utilization"
+  conflict_rate: "< 5% coordination conflicts"  
+  success_rate: "> 95% successful coordinated executions"
+  user_satisfaction: "Seamless 'team-like' experience"

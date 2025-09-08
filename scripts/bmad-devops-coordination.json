@@ -1,0 +1,285 @@
+{
+  "agent_identity": {
+    "name": "contains-eng-devops",
+    "role": "Infrastructure Automation & DevOps Validation",
+    "specialization": "MCP Infrastructure, Windows DevOps, Performance Monitoring",
+    "version": "1.0.0",
+    "bmad_coordination": "active"
+  },
+  
+  "coordination_capabilities": {
+    "provides": [
+      "mcp_infrastructure_validation",
+      "performance_benchmarking",
+      "windows_devops_automation", 
+      "real_time_monitoring",
+      "deployment_readiness_validation",
+      "infrastructure_security_audit"
+    ],
+    "consumes": [
+      "bmad_parallel_orchestrator.workflow_triggers",
+      "bmad_qa.security_validations",
+      "contains_test_analyzer.test_results",
+      "contains_eng_backend.deployment_requests"
+    ],
+    "coordinates_with": [
+      "bmad-parallel-orchestrator",
+      "bmad-qa", 
+      "contains-test-analyzer",
+      "contains-eng-backend",
+      "contains-eng-frontend"
+    ]
+  },
+
+  "mcp_infrastructure": {
+    "critical_servers": [
+      {
+        "name": "github",
+        "priority": "critical",
+        "validation_timeout": 10000,
+        "retry_attempts": 3,
+        "health_check": "npm_package_accessible",
+        "coordination_impact": "blocks_all_git_workflows"
+      },
+      {
+        "name": "firecrawl", 
+        "priority": "critical",
+        "validation_timeout": 15000,
+        "retry_attempts": 3,
+        "health_check": "npm_package_accessible",
+        "coordination_impact": "blocks_research_workflows"
+      }
+    ],
+    "high_priority_servers": [
+      {
+        "name": "postgres",
+        "priority": "high", 
+        "validation_timeout": 5000,
+        "retry_attempts": 2,
+        "health_check": "tcp_connection",
+        "port": 5432,
+        "coordination_impact": "degrades_coordination_performance"
+      },
+      {
+        "name": "redis",
+        "priority": "high",
+        "validation_timeout": 5000, 
+        "retry_attempts": 2,
+        "health_check": "tcp_connection",
+        "port": 6379,
+        "coordination_impact": "degrades_cache_performance"
+      }
+    ],
+    "medium_priority_servers": [
+      "notion", "shadcn", "filesystem", "memory"
+    ]
+  },
+
+  "performance_thresholds": {
+    "deployment_blocking": {
+      "overall_score": 4.0,
+      "critical_servers_down": 1,
+      "high_priority_servers_down": 2,
+      "connection_latency_ms": 5000
+    },
+    "warning_levels": {
+      "overall_score": 6.0,
+      "cpu_usage_percent": 80,
+      "memory_usage_percent": 85,
+      "disk_usage_percent": 90,
+      "response_time_ms": 3000
+    },
+    "optimal_levels": {
+      "overall_score": 8.0,
+      "cpu_usage_percent": 50,
+      "memory_usage_percent": 70,
+      "connection_latency_ms": 500
+    }
+  },
+
+  "coordination_workflows": {
+    "pre_deployment": {
+      "trigger": "bmad_parallel_orchestrator.deployment_requested",
+      "actions": [
+        "validate_mcp_infrastructure_quick",
+        "check_performance_thresholds", 
+        "verify_critical_services_health"
+      ],
+      "success_hook": "deployment_infrastructure_validated",
+      "failure_hook": "deployment_blocked_infrastructure_issues",
+      "timeout_seconds": 45
+    },
+    
+    "post_deployment": {
+      "trigger": "bmad_parallel_orchestrator.deployment_completed",
+      "actions": [
+        "run_full_validation_benchmark",
+        "compare_pre_post_performance",
+        "update_baseline_metrics"
+      ],
+      "success_hook": "deployment_performance_validated",
+      "failure_hook": "deployment_performance_degraded", 
+      "timeout_seconds": 180
+    },
+
+    "continuous_monitoring": {
+      "trigger": "schedule_hourly",
+      "actions": [
+        "monitor_critical_services",
+        "check_performance_drift",
+        "audit_resource_usage"
+      ],
+      "alert_on_failure": true,
+      "escalate_after_failures": 3
+    },
+
+    "security_coordination": {
+      "trigger": "bmad_qa.security_audit_requested", 
+      "actions": [
+        "validate_mcp_security_config",
+        "audit_tls_encryption",
+        "verify_resource_isolation",
+        "check_permissions_matrix"
+      ],
+      "provides_security_report": true
+    }
+  },
+
+  "hooks_integration": {
+    "outgoing_hooks": [
+      {
+        "event": "mcp_validation_completed",
+        "targets": ["bmad-parallel-orchestrator", "bmad-qa"],
+        "payload": {
+          "validation_result": "boolean",
+          "overall_score": "number",
+          "critical_services_status": "object",
+          "recommendations": "array",
+          "report_paths": "object"
+        }
+      },
+      {
+        "event": "mcp_server_alert", 
+        "targets": ["bmad-parallel-orchestrator"],
+        "payload": {
+          "server_name": "string",
+          "alert_level": "string",
+          "consecutive_failures": "number", 
+          "last_success": "timestamp",
+          "recommended_action": "string"
+        }
+      },
+      {
+        "event": "performance_degraded",
+        "targets": ["bmad-parallel-orchestrator", "contains-eng-backend"],
+        "payload": {
+          "current_score": "number",
+          "baseline_score": "number", 
+          "degradation_percent": "number",
+          "affected_services": "array",
+          "optimization_recommendations": "array"
+        }
+      },
+      {
+        "event": "infrastructure_ready_for_deployment",
+        "targets": ["bmad-parallel-orchestrator"],
+        "payload": {
+          "validation_timestamp": "timestamp",
+          "readiness_score": "number", 
+          "green_light_duration": "number",
+          "next_validation_due": "timestamp"
+        }
+      }
+    ],
+
+    "incoming_hooks": [
+      {
+        "event": "deployment_pipeline_started",
+        "source": "bmad-parallel-orchestrator",
+        "action": "trigger_pre_deployment_validation"
+      },
+      {
+        "event": "security_audit_requested",
+        "source": "bmad-qa", 
+        "action": "run_security_infrastructure_audit"
+      },
+      {
+        "event": "performance_test_completed",
+        "source": "contains-test-analyzer",
+        "action": "correlate_with_infrastructure_metrics"
+      },
+      {
+        "event": "backend_deployment_ready",
+        "source": "contains-eng-backend",
+        "action": "validate_backend_infrastructure_requirements"
+      }
+    ]
+  },
+
+  "automation_scripts": {
+    "windows_batch": {
+      "init_services": "scripts/init-mcp-services.bat",
+      "quick_validation": "scripts/validate-mcp-quick.bat", 
+      "full_validation": "scripts/validate-mcp-full.bat",
+      "monitoring": "scripts/monitor-mcp.bat"
+    },
+    "powershell": {
+      "infrastructure_validator": "scripts/mcp-infrastructure-validator.ps1",
+      "performance_analyzer": "scripts/mcp-performance-analyzer.ps1"
+    },
+    "coordination_triggers": {
+      "pre_deployment": "powershell -File scripts/mcp-infrastructure-validator.ps1 -ValidationMode Quick -TimeoutSeconds 30",
+      "post_deployment": "powershell -File scripts/mcp-infrastructure-validator.ps1 -ValidationMode Full",
+      "continuous_monitoring": "powershell -File scripts/mcp-infrastructure-validator.ps1 -ValidationMode Monitor -ContinuousMonitoring",
+      "performance_analysis": "powershell -File scripts/mcp-performance-analyzer.ps1 -Mode Analyze -GenerateHTML"
+    }
+  },
+
+  "reporting_integration": {
+    "log_aggregation": {
+      "audit_logs": "logs/audit/",
+      "performance_benchmarks": "logs/benchmarks/",
+      "monitoring_data": "logs/mcp-validation/", 
+      "analysis_reports": "logs/performance-reports/"
+    },
+    "bmad_coordination_events": "hooks/bmad-coordination-events.json",
+    "dashboard_endpoints": [
+      "logs/performance-reports/*.html",
+      "logs/mcp-status.json"
+    ]
+  },
+
+  "escalation_matrix": {
+    "level_1_info": {
+      "score_range": "7.0-10.0",
+      "action": "log_only",
+      "notification": "none"
+    },
+    "level_2_warning": {
+      "score_range": "4.0-6.9", 
+      "action": "alert_devops_team",
+      "notification": "bmad_parallel_orchestrator"
+    },
+    "level_3_critical": {
+      "score_range": "0.0-3.9",
+      "action": "block_deployments",
+      "notification": ["bmad_parallel_orchestrator", "bmad_qa"],
+      "escalate_after_minutes": 15
+    },
+    "level_4_emergency": {
+      "triggers": ["3_consecutive_critical_failures", "all_critical_servers_down"],
+      "action": "emergency_protocol",
+      "notification": "all_agents",
+      "immediate_escalation": true
+    }
+  },
+
+  "coordination_metadata": {
+    "last_updated": "2025-01-XX",
+    "coordination_protocol_version": "1.0",
+    "compatible_bmad_versions": ["1.0.x"],
+    "windows_compatibility": ["Windows 10", "Windows 11", "Windows Server 2019+"],
+    "powershell_minimum_version": "5.1",
+    "nodejs_minimum_version": "16.0"
+  }
+}

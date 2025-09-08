@@ -1,0 +1,163 @@
+{
+  "hooks": [
+    {
+      "name": "format-on-save",
+      "type": "command", 
+      "when": "afterWriteFiles",
+      "command": "npm run lint && npm run format"
+    },
+    {
+      "name": "unit-tests",
+      "type": "command",
+      "when": "afterWriteFiles", 
+      "command": "npm test --silent"
+    },
+    {
+      "name": "bmad-audit-log",
+      "type": "command",
+      "when": "afterWriteFiles",
+      "command": "echo \"[$(date)] File modified: $CLAUDE_FILE_PATH\" >> logs/audit/bmad-actions.log"
+    },
+    {
+      "name": "mcp-coordination-validator",
+      "type": "command",
+      "when": "beforeAgentExecution",
+      "command": "hooks\\mcp-coordination-validator.bat",
+      "description": "Valide la coordination entre agents parallèles MCP",
+      "timeout": 30000
+    },
+    {
+      "name": "mcp-performance-monitor",
+      "type": "command",
+      "when": "afterAgentExecution", 
+      "command": "hooks\\mcp-performance-monitor.bat",
+      "description": "Surveille les performances des agents parallèles",
+      "timeout": 45000
+    },
+    {
+      "name": "agent-resource-allocator",
+      "type": "command",
+      "when": "beforeAgentExecution",
+      "command": "hooks\\agent-resource-allocator.bat", 
+      "description": "Gère l'allocation des ressources entre agents",
+      "timeout": 30000
+    }
+  ],
+  "security": {
+    "blocked": [
+      "rm -rf",
+      "sudo", 
+      "chmod 777",
+      "mv /",
+      "dd if=",
+      "format C:",
+      "> /dev/",
+      ":(){ :|:& };:"
+    ],
+    "allowedDirectories": [
+      "docs/",
+      ".ai/",
+      "src/", 
+      "tests/",
+      "logs/audit/"
+    ]
+  },
+  "bmadIntegration": {
+    "coreConfigPath": ".bmad-core/core-config.yaml",
+    "defaultAgent": "bmad-orchestrator",
+    "commandPrefix": "BMad",
+    "agentTransformPrefix": "*agent",
+    "workflowPrefix": "*workflow",
+    "auditLogging": true,
+    "autoLoadDevFiles": [
+      "docs/architecture/coding-standards.md",
+      "docs/architecture/tech-stack.md", 
+      "docs/architecture/source-tree.md"
+    ]
+  },
+  "harmonization": {
+    "naturalLanguageRouting": true,
+    "intentRoutingMatrix": "agents-harmonization-pack/02-INTENT-ROUTING-MATRIX.md",
+    "commandAliases": {
+      "cadrer besoin": "/BMad/init-prd",
+      "définir architecture": "/BMad/init-architecture", 
+      "découper stories": "/BMad/shard-stories",
+      "prochaine story": "/BMad/run-next-story",
+      "passer QA": "/BMad/qa-gate"
+    }
+  },
+  "mcpIntegration": {
+    "enabled": true,
+    "parallelAgentsConfig": {
+      "maxConcurrentAgents": 3,
+      "agentTypes": {
+        "bmad-parallel-orchestrator": {
+          "priority": 1,
+          "resourceWeight": 0.4,
+          "specialization": "coordination"
+        },
+        "contains-eng-devops": {
+          "priority": 2,
+          "resourceWeight": 0.3,
+          "specialization": "validation"
+        },
+        "bmad-qa": {
+          "priority": 2,
+          "resourceWeight": 0.3,
+          "specialization": "security_audit"
+        }
+      },
+      "coordinationHooks": {
+        "preExecution": "hooks\\mcp-coordination-validator.bat",
+        "postExecution": "hooks\\mcp-performance-monitor.bat", 
+        "resourceManager": "hooks\\agent-resource-allocator.bat",
+        "syncronizer": "hooks\\agent-synchronizer.bat",
+        "conflictResolver": "hooks\\conflict-resolver.bat"
+      },
+      "resourceLimits": {
+        "cpuThreshold": 80,
+        "memoryThreshold": 75,
+        "executionTimeout": 300000,
+        "parallelExecutionTimeout": 450000,
+        "resourceContention": {
+          "maxWaitTime": 30000,
+          "retryAttempts": 3,
+          "backoffMultiplier": 1.5
+        }
+      },
+      "auditPaths": {
+        "coordinationLog": "logs\\audit\\mcp-coordination.log",
+        "performanceLog": "logs\\audit\\mcp-performance.log",
+        "resourceLog": "logs\\audit\\resource-allocation.log",
+        "activeAgents": "logs\\audit\\active-agents.json",
+        "resourceLocks": "logs\\audit\\resource-locks.json",
+        "synchronizationLog": "logs\\audit\\agent-sync.log",
+        "conflictLog": "logs\\audit\\conflict-resolution.log",
+        "executionTrace": "logs\\audit\\execution-trace.json"
+      },
+      "realTimeCoordination": {
+        "enabled": true,
+        "updateInterval": 5000,
+        "heartbeatTimeout": 15000,
+        "communicationProtocol": "json-ipc",
+        "sharedMemoryPath": "logs\\audit\\shared-state.json"
+      }
+    },
+    "orchestratorSettings": {
+      "defaultAgent": "bmad-parallel-orchestrator",
+      "failureRecovery": true,
+      "loadBalancing": "weighted-priority",
+      "healthCheckInterval": 30000,
+      "agentRecovery": {
+        "maxRetries": 2,
+        "recoveryTimeout": 60000,
+        "fallbackAgent": "bmad-parallel-orchestrator"
+      },
+      "communicationBus": {
+        "enabled": true,
+        "broadcastChannel": "bmad-agents-channel",
+        "messageQueuePath": "logs\\audit\\message-queue.json"
+      }
+    }
+  }
+}

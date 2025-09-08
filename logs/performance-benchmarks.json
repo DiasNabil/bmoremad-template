@@ -1,0 +1,161 @@
+{
+  "timestamp": "2025-09-08T13:56:35.910Z",
+  "benchmarks": {
+    "agent_coordination": {
+      "single_agent_response": {
+        "agents": 1,
+        "complexity": "low",
+        "duration_ms": 79,
+        "throughput": 12.617532314798376,
+        "efficiency": 126
+      },
+      "dual_agent_coordination": {
+        "agents": 2,
+        "complexity": "medium",
+        "duration_ms": 154,
+        "throughput": 13.02650698951199,
+        "efficiency": 65
+      },
+      "triple_agent_parallel": {
+        "agents": 3,
+        "complexity": "medium",
+        "duration_ms": 172,
+        "throughput": 17.448768960815407,
+        "efficiency": 58
+      },
+      "quad_agent_coordination": {
+        "agents": 4,
+        "complexity": "high",
+        "duration_ms": 296,
+        "throughput": 13.528088199932036,
+        "efficiency": 34
+      },
+      "max_parallel_execution": {
+        "agents": 6,
+        "complexity": "high",
+        "duration_ms": 326,
+        "throughput": 18.404388587427164,
+        "efficiency": 31
+      }
+    },
+    "mcp_servers": {
+      "github": {
+        "response_time_ms": 155,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 6
+      },
+      "firecrawl": {
+        "response_time_ms": 185,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 5
+      },
+      "postgresql": {
+        "response_time_ms": 92,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 11
+      },
+      "redis": {
+        "response_time_ms": 31,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 32
+      },
+      "notion": {
+        "response_time_ms": 200,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 5
+      },
+      "shadcn": {
+        "response_time_ms": 108,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 9
+      },
+      "filesystem": {
+        "response_time_ms": 61,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 16
+      },
+      "memory": {
+        "response_time_ms": 30,
+        "status": "healthy",
+        "availability": 99.9,
+        "throughput_qps": 33
+      }
+    },
+    "workflow_parsing": {
+      "simple_workflow": {
+        "complexity": "low",
+        "size": "1KB",
+        "parse_time_ms": 30,
+        "throughput_kb_per_sec": 34
+      },
+      "standard_workflow": {
+        "complexity": "medium",
+        "size": "5KB",
+        "parse_time_ms": 61,
+        "throughput_kb_per_sec": 81
+      },
+      "complex_workflow": {
+        "complexity": "high",
+        "size": "15KB",
+        "parse_time_ms": 124,
+        "throughput_kb_per_sec": 121
+      },
+      "enterprise_workflow": {
+        "complexity": "enterprise",
+        "size": "25KB",
+        "parse_time_ms": 204,
+        "throughput_kb_per_sec": 123
+      }
+    },
+    "parallel_comparison": {
+      "sequential_duration_ms": 4860,
+      "parallel_duration_ms": 803,
+      "speedup_factor": 6.05,
+      "parallel_efficiency": 101,
+      "performance_gain_percent": 505,
+      "threshold_met": true
+    },
+    "resource_usage": {
+      "memory": {
+        "heap_used_mb": 4,
+        "heap_total_mb": 5,
+        "external_mb": 2,
+        "rss_mb": 39
+      },
+      "cpu": {
+        "user_microseconds": 78000,
+        "system_microseconds": 0
+      },
+      "performance": {
+        "memory_threshold_met": true,
+        "efficiency_score": 100
+      }
+    }
+  },
+  "summary": {
+    "overall_grade": "B",
+    "key_metrics": {
+      "parallel_speedup": "6.05x faster",
+      "max_agents_coordinated": 6,
+      "avg_mcp_response_time": 108,
+      "performance_threshold_met": true
+    },
+    "recommendations": [
+      "Excellent performance! Ready for production deployment",
+      "Monitor performance in production environments",
+      "Consider scaling to 8+ agents for larger workloads"
+    ]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "ecosystem": "BMAD+Contains Studio+MCP",
+    "environment": "win32"
+  }
+}
