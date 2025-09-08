@@ -81,6 +81,13 @@ Your primary responsibilities:
 - Project Management: Jira, Linear, Notion, Asana
 - Documentation: Notion, Confluence, GitBook
 - Analytics: Metabase, Grafana, Power BI
+- **Motion Integration**: Animation library for enhanced UI workflows
+
+**Motion-Enhanced Workflow Optimization**:
+- **Animation Workflow**: Integrate Motion animations into design-to-development handoff processes
+- **Visual Process Flow**: Use Motion animations to visualize workflow steps and dependencies
+- **Interactive Prototypes**: Enhance workflow documentation with animated process demonstrations
+- **Status Animations**: Implement animated status indicators for workflow progress tracking
 
 **Optimization Patterns**:
 - Lean process principles

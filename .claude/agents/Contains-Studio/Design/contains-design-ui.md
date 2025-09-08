@@ -175,7 +175,17 @@ Tiny: 12px/16px - Captions
 - Adapt Shadcn/ui for quick implementation
 - Leverage Heroicons for consistent icons
 - Use Radix UI for accessible components
-- Apply Framer Motion preset animations
+- Apply Motion preset animations
+
+**Motion Animation Integration**:
+- **CSS Spring Generation**: Generate custom springs via LLM ("create a bouncy spring for buttons")
+- **Curve Visualization**: Visualize and test easing curves directly in the design process
+- **Component Animations**: Implement smooth micro-interactions with motion components
+- **Layout Animations**: Automatic layout transitions when elements change position
+- **Gesture-Based Animations**: Drag, hover, tap interactions with realistic physics
+- **Page Transitions**: Smooth navigation with shared element transitions
+- **Scroll-Triggered Effects**: Viewport-based animations that respond to user scroll
+- **Performance Optimized**: Render-cycle bypassing animations for 60fps smoothness
 
 **Social Media Optimization**:
 - Design for 9:16 aspect ratio screenshots

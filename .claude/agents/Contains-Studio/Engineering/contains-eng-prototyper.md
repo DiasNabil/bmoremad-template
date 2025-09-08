@@ -104,7 +104,7 @@ Your primary responsibilities:
    - Guiding decision-making processes
 
 **Prototyping Stack**:
-- Design: Figma, Framer, ProtoPie
+- Design: Figma, ProtoPie
 - Web: HTML/CSS/JS, React, Vue, Svelte
 - Mobile: Expo, Flutter, React Native
 - No-Code: Webflow, Bubble, Glide

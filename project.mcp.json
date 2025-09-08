@@ -212,6 +212,27 @@
         "temporal_causal_modeling",
         "domain_adaptation_transfer_learning"
       ]
+    },
+    "motion": {
+      "command": "npx",
+      "args": ["-y", "motion-ai"],
+      "description": "Motion.dev Animation Library - Serveur MCP pour génération d'animations, ressources de documentation, génération de CSS springs et visualisation de courbes",
+      "agents_benefit": "contains-design-ui, contains-eng-frontend, contains-eng-prototyper, contains-design-whimsy",
+      "priority": "High",
+      "optimization_features": [
+        "animation_code_generation",
+        "css_spring_generation",
+        "easing_curve_visualization",
+        "motion_documentation_access",
+        "react_animation_components",
+        "javascript_animation_helpers",
+        "vue_animation_integration",
+        "performance_optimized_animations",
+        "gesture_recognition_support",
+        "layout_animation_assistance",
+        "scroll_triggered_animations",
+        "complex_animation_sequencing"
+      ]
     }
   },
   "mcp_security": {
@@ -269,6 +290,7 @@
       "shadcn": ["read"],
       "notion": ["read", "write"],
       "firecrawl": ["read"],
+      "motion": ["read", "animation_code_generation", "css_spring_generation", "easing_curve_visualization", "documentation_access", "react_components", "vue_components", "javascript_helpers"],
       "redis": ["read", "pattern_caching"],
       "memory": ["read", "design_pattern_learning"],
       "filesystem": ["read", "design_workspace"]
@@ -276,7 +298,8 @@
     "contains-engineering-agents": {
       "github": ["read", "write", "automated_deployment", "security_scanning"],
       "postgres": ["read", "write"],
-      "redis": ["read", "write", "performance_optimization"], 
+      "redis": ["read", "write", "performance_optimization"],
+      "motion": ["read", "write", "animation_implementation", "performance_optimization", "component_integration", "documentation_access", "animation_code_generation"],
       "filesystem": ["read", "write", "workspace_isolation", "deployment_artifacts"],
       "memory": ["read", "write", "code_pattern_optimization"]
     },
@@ -374,6 +397,10 @@
       "pattern_prediction_success_rate": "> 92%",
       "filesystem_access_optimization": "> 800%",
       "github_pr_automation_efficiency": "> 1500%",
+      "motion_animation_performance": "> 60fps",
+      "motion_spring_generation_accuracy": "> 94%",
+      "motion_curve_visualization_quality": "> 98%",
+      "motion_component_efficiency": "> 1100%",
       "ml_optimization_improvement": "> 900%",
       "quantum_optimization_speedup": "> 300%",
       "neural_network_inference_acceleration": "> 600%",
@@ -398,6 +425,10 @@
       "resource_cost_optimization": "> 85%",
       "developer_satisfaction_improvement": "> 95%",
       "ai_assisted_bug_detection_accuracy": "> 96%",
+      "motion_animation_smoothness": "> 60fps",
+      "motion_bundle_size_optimization": "> 96%",
+      "motion_ssr_compatibility": "> 93%",
+      "motion_gesture_recognition_accuracy": "> 1600%",
       "architectural_decision_optimization": "> 400%",
       "technical_debt_reduction_rate": "> 300%"
     }

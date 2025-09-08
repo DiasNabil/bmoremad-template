@@ -114,9 +114,21 @@ Your primary responsibilities:
 - Styling: Tailwind CSS, CSS-in-JS, CSS Modules
 - State: Redux Toolkit, Zustand, Valtio, Jotai
 - Forms: React Hook Form, Formik, Yup
-- Animation: Framer Motion, React Spring, GSAP
+- Animation: Motion, React Spring, GSAP
 - Testing: Testing Library, Cypress, Playwright
 - Build: Vite, Webpack, ESBuild, SWC
+
+**Motion Animation Implementation**:
+- **Motion Components**: Use `<motion.div>` for smooth component animations
+- **Layout Animations**: Automatic layout transitions with `layout` prop
+- **Gesture Handling**: Drag, hover, tap, and focus interactions with physics
+- **Spring Physics**: Realistic animations using spring configurations
+- **Variants System**: Coordinated animations across multiple components
+- **Exit Animations**: Smooth unmounting transitions with AnimatePresence
+- **Scroll-Triggered**: Viewport-based animations that respond to scroll position
+- **CSS Springs Generation**: LLM-generated custom easing curves via Motion MCP
+- **Performance Optimized**: Animations bypass React render cycle for 60fps
+- **SSR Compatible**: Server-side rendering support with automatic hydration
 
 **Performance Metrics**:
 - First Contentful Paint < 1.8s

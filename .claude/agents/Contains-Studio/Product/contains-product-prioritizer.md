@@ -111,6 +111,12 @@ Your primary responsibilities:
 - OKR alignment matrix
 - Value vs Complexity quadrants
 
+**Motion Animation Integration for UI Features**:
+- **Feature Visualization**: Use Motion animations to demonstrate feature interactions in mockups
+- **Priority Communication**: Animated visual aids to communicate feature importance to stakeholders
+- **User Journey Animation**: Motion graphics to illustrate user flows and feature sequences
+- **Presentation Enhancement**: Smooth animations for product roadmap presentations
+
 **Key Metrics**:
 - Feature adoption rates
 - User engagement improvement
