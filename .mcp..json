@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\NABIL\\Desktop\\projet perso\\projets\\bmoremad-template"],
+      "env": {}
+    },
+    "memory": {
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {}
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": ""
+      }
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    },
+    "motion": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "motion-ai", "mcp"],
+      "env": {}
+    },
+    "shadcn": {
+      "command": "cmd", 
+      "args": ["/c", "npx", "shadcn@latest", "mcp"],
+      "env": {}
+    }
+  }
+}
